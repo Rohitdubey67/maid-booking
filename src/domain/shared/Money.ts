@@ -1,6 +1,6 @@
-import { DomainError } from "./DomainError.js";
+import { AppError } from "./AppError.js";
 
-/** Immutable, non-negative INR amount stored in paise to avoid decimal errors. */
+/** A rupee amount that can't change or go below zero. Stored in paise to avoid decimal errors. */
 export class Money {
   static readonly ZERO = new Money(0);
 
@@ -12,7 +12,7 @@ export class Money {
 
   static ofPaise(paise: number): Money {
     if (!Number.isSafeInteger(paise) || paise < 0) {
-      throw new DomainError("INVALID_MONEY", `Amount must be a non-negative whole number of paise: ${paise}`);
+      throw new AppError("INVALID_MONEY", `Amount must be a non-negative whole number of paise: ${paise}`);
     }
     return new Money(paise);
   }
@@ -27,14 +27,14 @@ export class Money {
 
   /**
    * Returns part/whole of this amount, rounded to the nearest paisa (halves round up).
-   * Examples: hourlyRate.prorate(90, 60) for 90 minutes, amount.prorate(50, 100) for 50%.
+   * Examples: hourlyRate.portion(90, 60) for 90 minutes, amount.portion(50, 100) for 50%.
    */
-  prorate(part: number, whole: number): Money {
+  portion(part: number, whole: number): Money {
     if (!Number.isSafeInteger(part) || part < 0) {
-      throw new DomainError("INVALID_MONEY", `Proration part must be a non-negative whole number: ${part}`);
+      throw new AppError("INVALID_MONEY", `Part must be a non-negative whole number: ${part}`);
     }
     if (!Number.isSafeInteger(whole) || whole <= 0) {
-      throw new DomainError("INVALID_MONEY", `Proration whole must be a positive whole number: ${whole}`);
+      throw new AppError("INVALID_MONEY", `Whole must be a positive whole number: ${whole}`);
     }
     return Money.ofPaise(Math.round((this.paise * part) / whole));
   }

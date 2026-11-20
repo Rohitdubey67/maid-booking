@@ -1,8 +1,10 @@
-import { DomainError } from "./DomainError.js";
+import { AppError } from "./AppError.js";
+import { MS_PER_MINUTE } from "./IstCalendar.js";
 
-const MS_PER_MINUTE = 60_000;
-
-/** Immutable half-open time range [start, end), lasting a whole number of minutes. */
+/**
+ * A start and end time that can't be changed, lasting whole minutes.
+ * The end time is not part of the slot, so 9-10 and 10-11 don't overlap.
+ */
 export class TimeSlot {
   private readonly startMs: number;
   private readonly endMs: number;
@@ -17,13 +19,13 @@ export class TimeSlot {
     const endMs = end.getTime();
 
     if (Number.isNaN(startMs) || Number.isNaN(endMs)) {
-      throw new DomainError("INVALID_TIME_SLOT", "Slot start and end must be valid dates");
+      throw new AppError("INVALID_TIME_SLOT", "Slot start and end must be valid dates");
     }
     if (startMs >= endMs) {
-      throw new DomainError("INVALID_TIME_SLOT", "Slot start must be before its end");
+      throw new AppError("INVALID_TIME_SLOT", "Slot start must be before its end");
     }
     if ((endMs - startMs) % MS_PER_MINUTE !== 0) {
-      throw new DomainError("INVALID_TIME_SLOT", "Slot duration must be a whole number of minutes");
+      throw new AppError("INVALID_TIME_SLOT", "Slot duration must be a whole number of minutes");
     }
     return new TimeSlot(startMs, endMs);
   }
